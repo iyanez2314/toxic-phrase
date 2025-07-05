@@ -19,10 +19,12 @@ import {
   WifiOff,
   Copy,
   RefreshCw,
+  X,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useRealTimeRoom } from "../../../hooks/useRealTimeRoom"
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
+import { toast } from "sonner"
 
 interface Player {
   id: string
@@ -34,6 +36,7 @@ interface Player {
 
 export default function GameRoom() {
   const params = useParams()
+  const router = useRouter()
   const roomId = params.roomId as string
   const [newPlayerName, setNewPlayerName] = useState("")
   const [isJoinDialogOpen, setIsJoinDialogOpen] = useState(false)
@@ -42,12 +45,15 @@ export default function GameRoom() {
   const [hasJoined, setHasJoined] = useState(false)
   const [showCopySuccess, setShowCopySuccess] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [isResetDialogOpen, setIsResetDialogOpen] = useState(false)
+  const [isCloseDialogOpen, setIsCloseDialogOpen] = useState(false)
 
   const {
     room,
     isHost,
     isConnected,
     playerId,
+    roomClosed,
     joinGame,
     removePlayer,
     startGuessing,
@@ -55,6 +61,7 @@ export default function GameRoom() {
     revealAnswer,
     resetGame,
     updateTitle,
+    closeRoom,
   } = useRealTimeRoom(roomId)
 
   // Check if current player has already joined
@@ -64,6 +71,14 @@ export default function GameRoom() {
     }
   }, [room, playerId])
 
+  // Handle room closure - redirect all users to home page
+  useEffect(() => {
+    if (roomClosed) {
+      toast.info("The meeting has been closed by the host.")
+      router.push("/")
+    }
+  }, [roomClosed, router])
+
   const handleJoinGame = async () => {
     if (newPlayerName.trim()) {
       setIsLoading(true)
@@ -72,6 +87,9 @@ export default function GameRoom() {
         setNewPlayerName("")
         setIsJoinDialogOpen(false)
         setHasJoined(true)
+        toast.success("Successfully joined the meeting!")
+      } else {
+        toast.error("Failed to join the meeting. Please try again.")
       }
       setIsLoading(false)
     }
@@ -84,6 +102,9 @@ export default function GameRoom() {
       const success = await revealAnswer(answer)
       if (success) {
         setTempAnswer("")
+        toast.success("Results revealed! Check out the winners!")
+      } else {
+        toast.error("Failed to reveal results. Please try again.")
       }
       setIsLoading(false)
     }
@@ -102,19 +123,24 @@ export default function GameRoom() {
 
   const handleStartGuessing = async () => {
     setIsLoading(true)
-    await startGuessing()
+    const success = await startGuessing()
+    if (success) {
+      toast.success("Betting phase started! Place your bets!")
+    } else {
+      toast.error("Failed to start betting phase. Please try again.")
+    }
     setIsLoading(false)
   }
 
   const handleResetGame = async () => {
-    if (confirm("Are you sure you want to start a new meeting? This will clear all participants and bets.")) {
-      setIsLoading(true)
-      const success = await resetGame()
-      if (success) {
-        setHasJoined(false)
-      }
-      setIsLoading(false)
+    setIsLoading(true)
+    const success = await resetGame()
+    if (success) {
+      setHasJoined(false)
+      toast.success("New meeting started successfully!")
     }
+    setIsLoading(false)
+    setIsResetDialogOpen(false)
   }
 
   const copyRoomLink = () => {
@@ -362,16 +388,93 @@ export default function GameRoom() {
             </Dialog>
           )}
 
+          {room.state === "finished" && isHost && (
+            <Dialog open={isCloseDialogOpen} onOpenChange={setIsCloseDialogOpen}>
+              <DialogTrigger asChild>
+                <Button
+                  className="bg-gradient-to-r from-gray-600 to-slate-600 hover:from-gray-700 hover:to-slate-700"
+                  disabled={isLoading}
+                >
+                  {isLoading ? <RefreshCw className="w-4 h-4 mr-2 animate-spin" /> : <X className="w-4 h-4 mr-2" />}
+                  Close Room
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="bg-gray-800 border-gray-700">
+                <DialogHeader>
+                  <DialogTitle className="text-gray-100">Close Meeting Room</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <p className="text-gray-300">
+                    Are you sure you want to close this meeting? All participants will be disconnected and the room will be permanently deleted.
+                  </p>
+                  <div className="flex gap-2 justify-end">
+                    <Button
+                      variant="outline"
+                      onClick={() => setIsCloseDialogOpen(false)}
+                      className="bg-gray-700 border-gray-600 text-gray-300 hover:bg-gray-600"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={async () => {
+                        setIsLoading(true)
+                        await closeRoom()
+                        setIsLoading(false)
+                        setIsCloseDialogOpen(false)
+                      }}
+                      className="bg-gradient-to-r from-gray-600 to-slate-600 hover:from-gray-700 hover:to-slate-700"
+                      disabled={isLoading}
+                    >
+                      {isLoading ? <RefreshCw className="w-4 h-4 mr-2 animate-spin" /> : <X className="w-4 h-4 mr-2" />}
+                      Close Room
+                    </Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
+          )}
+
           {isHost && (
-            <Button
-              onClick={handleResetGame}
-              variant="destructive"
-              className="bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700"
-              disabled={isLoading}
-            >
-              {isLoading ? <RefreshCw className="w-4 h-4 mr-2 animate-spin" /> : <RotateCcw className="w-4 h-4 mr-2" />}
-              New Meeting
-            </Button>
+            <Dialog open={isResetDialogOpen} onOpenChange={setIsResetDialogOpen}>
+              <DialogTrigger asChild>
+                <Button
+                  variant="destructive"
+                  className="bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700"
+                  disabled={isLoading}
+                >
+                  {isLoading ? <RefreshCw className="w-4 h-4 mr-2 animate-spin" /> : <RotateCcw className="w-4 h-4 mr-2" />}
+                  New Meeting
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="bg-gray-800 border-gray-700">
+                <DialogHeader>
+                  <DialogTitle className="text-gray-100">Start New Meeting</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <p className="text-gray-300">
+                    Are you sure you want to start a new meeting? This will clear all participants and bets.
+                  </p>
+                  <div className="flex gap-2 justify-end">
+                    <Button
+                      variant="outline"
+                      onClick={() => setIsResetDialogOpen(false)}
+                      className="bg-gray-700 border-gray-600 text-gray-300 hover:bg-gray-600"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={handleResetGame}
+                      variant="destructive"
+                      className="bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700"
+                      disabled={isLoading}
+                    >
+                      {isLoading ? <RefreshCw className="w-4 h-4 mr-2 animate-spin" /> : null}
+                      Start New Meeting
+                    </Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
           )}
         </div>
 

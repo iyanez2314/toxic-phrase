@@ -27,6 +27,7 @@ export function useRealTimeRoom(roomId: string) {
   const [isHost, setIsHost] = useState(false)
   const [isConnected, setIsConnected] = useState(false)
   const [playerId] = useState(() => `player_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`)
+  const [roomClosed, setRoomClosed] = useState(false)
   const socketRef = useRef<Socket | null>(null)
 
   useEffect(() => {
@@ -61,6 +62,12 @@ export function useRealTimeRoom(roomId: string) {
     socket.on('gameUpdate', (data: { room: GameRoom }) => {
       console.log('Game update:', data)
       setRoom(data.room)
+    })
+
+    socket.on('roomClosed', (data: { roomId: string }) => {
+      console.log('Room closed:', data)
+      setRoomClosed(true)
+      setRoom(null)
     })
 
     socket.on('connect_error', (error) => {
@@ -165,11 +172,22 @@ export function useRealTimeRoom(roomId: string) {
     [roomId, playerId]
   )
 
+  const closeRoom = useCallback(async () => {
+    if (!socketRef.current) return false
+
+    socketRef.current.emit('closeRoom', {
+      roomId,
+      hostId: playerId
+    })
+    return true
+  }, [roomId, playerId])
+
   return {
     room,
     isHost,
     isConnected,
     playerId,
+    roomClosed,
     joinGame,
     removePlayer,
     startGuessing,
@@ -177,5 +195,6 @@ export function useRealTimeRoom(roomId: string) {
     revealAnswer,
     resetGame,
     updateTitle,
+    closeRoom,
   }
 }

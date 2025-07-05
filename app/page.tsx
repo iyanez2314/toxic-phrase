@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Trophy, Users, Target, Crown, Zap, RotateCcw, Plus, CheckCircle, ArrowRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 
 interface Player {
   id: string
@@ -30,6 +31,7 @@ export default function NumberGuessingGame() {
   const gameTitle = "Toxic Coworker Phrase Counter"
   const [winner, setWinner] = useState<Player | null>(null)
   const [roomId, setRoomId] = useState("")
+  const [isResetDialogOpen, setIsResetDialogOpen] = useState(false)
   const router = useRouter()
 
   const createRoom = () => {
@@ -88,6 +90,7 @@ export default function NumberGuessingGame() {
       setPlayers([...players, newPlayer])
       setNewPlayerName("")
       setIsJoinDialogOpen(false)
+      toast.success(`${newPlayerName.trim()} joined the meeting!`)
     }
   }
 
@@ -104,6 +107,7 @@ export default function NumberGuessingGame() {
   const startGuessing = () => {
     if (players.length > 0) {
       setGameState("guessing")
+      toast.success("Betting phase started! Everyone place your bets!")
     }
   }
 
@@ -133,17 +137,18 @@ export default function NumberGuessingGame() {
 
       setGameState("finished")
       setTempAnswer("")
+      toast.success("Results revealed! Check out the winners!")
     }
   }
 
   const resetGame = () => {
-    if (confirm("Are you sure you want to start a new meeting? This will clear all participants and bets.")) {
-      setPlayers([])
-      setGameState("waiting")
-      setCorrectAnswer(null)
-      setWinner(null)
-      setTempAnswer("")
-    }
+    setPlayers([])
+    setGameState("waiting")
+    setCorrectAnswer(null)
+    setWinner(null)
+    setTempAnswer("")
+    setIsResetDialogOpen(false)
+    toast.success("New meeting started successfully!")
   }
 
 
@@ -306,14 +311,44 @@ export default function NumberGuessingGame() {
             </Dialog>
           )}
 
-          <Button
-            onClick={resetGame}
-            variant="destructive"
-            className="bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700"
-          >
-            <RotateCcw className="w-4 h-4 mr-2" />
-            New Meeting
-          </Button>
+          <Dialog open={isResetDialogOpen} onOpenChange={setIsResetDialogOpen}>
+            <DialogTrigger asChild>
+              <Button
+                variant="destructive"
+                className="bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700"
+              >
+                <RotateCcw className="w-4 h-4 mr-2" />
+                New Meeting
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="bg-gray-800 border-gray-700">
+              <DialogHeader>
+                <DialogTitle className="text-gray-100">Start New Meeting</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <p className="text-gray-300">
+                  Are you sure you want to start a new meeting? This will clear all participants and bets.
+                </p>
+                <div className="flex gap-2 justify-end">
+                  <Button
+                    variant="outline"
+                    onClick={() => setIsResetDialogOpen(false)}
+                    className="bg-gray-700 border-gray-600 text-gray-300 hover:bg-gray-600"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={resetGame}
+                    variant="destructive"
+                    className="bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700"
+                  >
+                    <RotateCcw className="w-4 h-4 mr-2" />
+                    Start New Meeting
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
 
         {/* Correct Answer Display */}

@@ -172,6 +172,27 @@ app.prepare().then(() => {
       io.to(roomId).emit('gameUpdate', { room })
     })
 
+    socket.on('closeRoom', ({ roomId, hostId }) => {
+      const room = gameRooms.get(roomId)
+      if (!room || room.host !== hostId) return
+
+      console.log(`Host ${hostId} closing room ${roomId}`)
+      
+      // Notify all clients in the room that it's being closed
+      io.to(roomId).emit('roomClosed', { roomId })
+      
+      // Remove the room from memory
+      gameRooms.delete(roomId)
+      
+      // Disconnect all sockets from this room
+      const sockets = io.sockets.adapter.rooms.get(roomId)
+      if (sockets) {
+        sockets.forEach(socketId => {
+          io.sockets.sockets.get(socketId)?.leave(roomId)
+        })
+      }
+    })
+
     socket.on('disconnect', () => {
       console.log('Client disconnected:', socket.id)
     })
