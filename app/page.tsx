@@ -47,7 +47,7 @@ export default function HomePage() {
             Track those buzzwords in real-time during your meetings
           </p>
           <p className="text-gray-400 max-w-2xl mx-auto">
-            Create a room, share it with your team, and bet on how many times someone will say "synergy," "circle back," or "low hanging fruit"
+                         Create a room, share it with your team, and bet on how many times someone will say &quot;synergy,&quot; &quot;circle back,&quot; or &quot;low hanging fruit&quot;
           </p>
         </div>
 
@@ -149,7 +149,7 @@ export default function HomePage() {
                 <div className="text-3xl mb-2">📝</div>
                 <h3 className="text-lg font-semibold text-gray-100 mb-2">1. Pick a Phrase</h3>
                 <p className="text-gray-400 text-sm">
-                  Choose a toxic workplace phrase like "synergy," "circle back," or "low hanging fruit"
+                                     Choose a toxic workplace phrase like &quot;synergy,&quot; &quot;circle back,&quot; or &quot;low hanging fruit&quot;
                 </p>
               </div>
               <div className="text-center">
