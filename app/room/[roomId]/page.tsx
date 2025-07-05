@@ -127,14 +127,14 @@ export default function GameRoom() {
 
   if (!room) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-100 via-purple-50 to-pink-100 flex items-center justify-center">
-        <Card className="w-96">
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-800 to-gray-900 flex items-center justify-center">
+        <Card className="w-96 bg-gray-800 border-gray-700">
           <CardContent className="p-8 text-center">
-            <div className="text-4xl mb-4">🎯</div>
-            <h2 className="text-xl font-semibold mb-2">Loading Game Room...</h2>
-            <p className="text-gray-600 mb-4">Room ID: {roomId}</p>
+            <div className="text-4xl mb-4">🏢</div>
+            <h2 className="text-xl font-semibold mb-2 text-gray-100">Loading Meeting Room...</h2>
+            <p className="text-gray-400 mb-4">Meeting ID: {roomId}</p>
             <div className="flex items-center justify-center gap-2">
-              <RefreshCw className="w-4 h-4 animate-spin" />
+              <RefreshCw className="w-4 h-4 animate-spin text-gray-400" />
               <span className="text-sm text-gray-500">Connecting...</span>
             </div>
           </CardContent>
@@ -171,11 +171,11 @@ export default function GameRoom() {
   const getStateColor = () => {
     switch (room.state) {
       case "waiting":
-        return "bg-blue-100 text-blue-800"
+        return "bg-blue-900 text-blue-200"
       case "guessing":
-        return "bg-yellow-100 text-yellow-800"
+        return "bg-yellow-900 text-yellow-200"
       case "finished":
-        return "bg-green-100 text-green-800"
+        return "bg-green-900 text-green-200"
     }
   }
 
@@ -191,33 +191,34 @@ export default function GameRoom() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-100 via-purple-50 to-pink-100 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-800 to-gray-900 p-4">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-4 mb-4">
-            <h1 className="text-3xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
+            <h1 className="text-3xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">
               {room.title}
             </h1>
             {isHost && room.state === "waiting" && (
               <Dialog>
                 <DialogTrigger asChild>
-                  <Button variant="ghost" size="sm" className="text-gray-500" disabled={isLoading}>
+                  <Button variant="ghost" size="sm" className="text-gray-400 hover:text-gray-300" disabled={isLoading}>
                     ✏️
                   </Button>
                 </DialogTrigger>
-                <DialogContent>
+                <DialogContent className="bg-gray-800 border-gray-700">
                   <DialogHeader>
-                    <DialogTitle>Edit Game Title</DialogTitle>
+                    <DialogTitle className="text-gray-100">Edit Meeting Title</DialogTitle>
                   </DialogHeader>
                   <div className="space-y-4">
                     <Input
-                      placeholder="Enter new game title"
+                      placeholder="Enter new meeting title"
                       value={tempTitle}
                       onChange={(e) => setTempTitle(e.target.value)}
                       onKeyDown={(e) => e.key === "Enter" && handleUpdateTitle()}
+                      className="bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-400"
                     />
-                    <Button onClick={handleUpdateTitle} className="w-full" disabled={isLoading}>
+                    <Button onClick={handleUpdateTitle} className="w-full bg-purple-600 hover:bg-purple-700" disabled={isLoading}>
                       {isLoading ? <RefreshCw className="w-4 h-4 mr-2 animate-spin" /> : null}
                       Update Title
                     </Button>
@@ -229,15 +230,15 @@ export default function GameRoom() {
 
           {/* Connection Status & Room Info */}
           <div className="flex flex-wrap justify-center gap-4 mb-4">
-            <Badge variant={isConnected ? "default" : "destructive"} className="text-sm px-3 py-1">
+            <Badge variant={isConnected ? "default" : "destructive"} className="text-sm px-3 py-1 bg-gray-700 text-gray-200">
               {isConnected ? <Wifi className="w-3 h-3 mr-1" /> : <WifiOff className="w-3 h-3 mr-1" />}
               {isConnected ? "Connected" : "Reconnecting..."}
             </Badge>
-            <Badge variant="outline" className="text-sm px-3 py-1">
+            <Badge variant="outline" className="text-sm px-3 py-1 bg-gray-700 border-gray-600 text-gray-200">
               Room: {roomId}
             </Badge>
             {isHost && (
-              <Badge variant="secondary" className="text-sm px-3 py-1">
+              <Badge variant="secondary" className="text-sm px-3 py-1 bg-purple-700 text-purple-200">
                 👑 Host
               </Badge>
             )}
@@ -245,7 +246,7 @@ export default function GameRoom() {
               variant="ghost"
               size="sm"
               onClick={copyRoomLink}
-              className={cn("text-xs px-2 py-1 h-auto transition-colors", showCopySuccess && "text-green-600")}
+              className={cn("text-xs px-2 py-1 h-auto transition-colors", showCopySuccess ? "text-green-400" : "text-gray-400 hover:text-gray-300")}
             >
               <Copy className="w-3 h-3 mr-1" />
               {showCopySuccess ? "Copied!" : "Copy Link"}
@@ -258,18 +259,18 @@ export default function GameRoom() {
           </Badge>
 
           <div className="flex flex-wrap justify-center gap-4 mb-6">
-            <Badge variant="secondary" className="text-lg px-4 py-2">
+            <Badge variant="secondary" className="text-lg px-4 py-2 bg-gray-700 text-gray-200">
               <Users className="w-4 h-4 mr-2" />
               Participants: {room.players.length}
             </Badge>
             {room.state === "guessing" && (
-              <Badge variant="secondary" className="text-lg px-4 py-2">
+              <Badge variant="secondary" className="text-lg px-4 py-2 bg-gray-700 text-gray-200">
                 <CheckCircle className="w-4 h-4 mr-2" />
                 Bets: {room.players.filter((p) => p.guess !== null).length}/{room.players.length}
               </Badge>
             )}
             {room.winner && (
-              <Badge className="text-lg px-4 py-2 bg-gradient-to-r from-yellow-500 to-orange-500">
+              <Badge className="text-lg px-4 py-2 bg-gradient-to-r from-yellow-600 to-orange-600 text-white">
                 <Crown className="w-4 h-4 mr-2" />
                 Closest Bet: {room.winner.name}
               </Badge>
@@ -285,16 +286,16 @@ export default function GameRoom() {
                 <Dialog open={isJoinDialogOpen} onOpenChange={setIsJoinDialogOpen}>
                   <DialogTrigger asChild>
                     <Button
-                      className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600"
+                      className="bg-gradient-to-r from-emerald-600 to-blue-600 hover:from-emerald-700 hover:to-blue-700"
                       disabled={isLoading}
                     >
                       <Plus className="w-4 h-4 mr-2" />
                       Join Meeting
                     </Button>
                   </DialogTrigger>
-                  <DialogContent>
+                  <DialogContent className="bg-gray-800 border-gray-700">
                     <DialogHeader>
-                      <DialogTitle>Join the Meeting</DialogTitle>
+                      <DialogTitle className="text-gray-100">Join the Meeting</DialogTitle>
                     </DialogHeader>
                     <div className="space-y-4">
                       <Input
@@ -303,8 +304,9 @@ export default function GameRoom() {
                         onChange={(e) => setNewPlayerName(e.target.value)}
                         onKeyDown={(e) => e.key === "Enter" && handleJoinGame()}
                         disabled={isLoading}
+                        className="bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-400"
                       />
-                      <Button onClick={handleJoinGame} className="w-full" disabled={isLoading}>
+                      <Button onClick={handleJoinGame} className="w-full bg-purple-600 hover:bg-purple-700" disabled={isLoading}>
                         {isLoading ? <RefreshCw className="w-4 h-4 mr-2 animate-spin" /> : null}
                         Join Meeting
                       </Button>
@@ -317,7 +319,7 @@ export default function GameRoom() {
                 <Button
                   onClick={handleStartGuessing}
                   disabled={room.players.length === 0 || isLoading}
-                  className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                  className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
                 >
                   {isLoading ? <RefreshCw className="w-4 h-4 mr-2 animate-spin" /> : <Zap className="w-4 h-4 mr-2" />}
                   Start Betting
@@ -330,16 +332,16 @@ export default function GameRoom() {
             <Dialog>
               <DialogTrigger asChild>
                 <Button
-                  className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
+                  className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700"
                   disabled={isLoading}
                 >
                   <Trophy className="w-4 h-4 mr-2" />
                   Reveal Actual Count
                 </Button>
               </DialogTrigger>
-              <DialogContent>
+              <DialogContent className="bg-gray-800 border-gray-700">
                 <DialogHeader>
-                  <DialogTitle>Enter the Actual Count</DialogTitle>
+                  <DialogTitle className="text-gray-100">Enter the Actual Count</DialogTitle>
                 </DialogHeader>
                 <div className="space-y-4">
                   <Input
@@ -349,8 +351,9 @@ export default function GameRoom() {
                     onChange={(e) => setTempAnswer(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && handleRevealAnswer()}
                     disabled={isLoading}
+                    className="bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-400"
                   />
-                  <Button onClick={handleRevealAnswer} className="w-full" disabled={isLoading}>
+                  <Button onClick={handleRevealAnswer} className="w-full bg-orange-600 hover:bg-orange-700" disabled={isLoading}>
                     {isLoading ? <RefreshCw className="w-4 h-4 mr-2 animate-spin" /> : null}
                     Reveal Closest Bet
                   </Button>
@@ -363,7 +366,7 @@ export default function GameRoom() {
             <Button
               onClick={handleResetGame}
               variant="destructive"
-              className="bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600"
+              className="bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700"
               disabled={isLoading}
             >
               {isLoading ? <RefreshCw className="w-4 h-4 mr-2 animate-spin" /> : <RotateCcw className="w-4 h-4 mr-2" />}
@@ -374,28 +377,28 @@ export default function GameRoom() {
 
         {/* Correct Answer Display */}
         {room.correctAnswer !== null && (
-          <Card className="max-w-md mx-auto mb-8 bg-gradient-to-r from-green-100 to-blue-100 border-green-300">
+          <Card className="max-w-md mx-auto mb-8 bg-gradient-to-r from-green-800 to-blue-800 border-green-600">
             <CardContent className="text-center p-6">
-              <div className="text-2xl font-bold text-green-800 mb-2">Actual Count</div>
-              <div className="text-4xl font-bold text-green-900">{room.correctAnswer}</div>
+              <div className="text-2xl font-bold text-green-200 mb-2">Actual Count</div>
+              <div className="text-4xl font-bold text-green-100">{room.correctAnswer}</div>
             </CardContent>
           </Card>
         )}
 
         {/* Players Grid */}
         {room.players.length === 0 ? (
-          <Card className="max-w-md mx-auto text-center p-8">
+          <Card className="max-w-md mx-auto text-center p-8 bg-gray-800 border-gray-700">
             <CardContent>
               <div className="text-6xl mb-4">🏢</div>
-              <h3 className="text-xl font-semibold mb-2">No Meeting Participants Yet!</h3>
-              <p className="text-gray-600 mb-4">Share the meeting link with others to start tracking those phrases!</p>
+              <h3 className="text-xl font-semibold mb-2 text-gray-100">No Meeting Participants Yet!</h3>
+              <p className="text-gray-400 mb-4">Share the meeting link with others to start tracking those phrases!</p>
               <div className="text-sm text-gray-500 mb-4">
-                Meeting ID: <code className="bg-gray-100 px-2 py-1 rounded">{roomId}</code>
+                Meeting ID: <code className="bg-gray-700 px-2 py-1 rounded text-gray-300">{roomId}</code>
               </div>
               {!hasJoined && (
                 <Button
                   onClick={() => setIsJoinDialogOpen(true)}
-                  className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                  className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
                   disabled={isLoading}
                 >
                   <Plus className="w-4 h-4 mr-2" />
@@ -415,33 +418,33 @@ export default function GameRoom() {
                 <Card
                   key={player.id}
                   className={cn(
-                    "relative overflow-hidden transition-all duration-300 hover:scale-105",
-                    isWinner && "ring-4 ring-yellow-400 bg-gradient-to-br from-yellow-50 to-orange-50",
-                    !isWinner && rank === 1 && "bg-gradient-to-br from-yellow-100 to-yellow-200",
-                    !isWinner && rank === 2 && "bg-gradient-to-br from-gray-100 to-gray-200",
-                    !isWinner && rank === 3 && "bg-gradient-to-br from-orange-100 to-orange-200",
-                    !isWinner && (rank === null || rank > 3) && "bg-gradient-to-br from-blue-50 to-purple-50",
+                    "relative overflow-hidden transition-all duration-300 hover:scale-105 bg-gray-800 border-gray-700",
+                    isWinner && "ring-4 ring-yellow-400 bg-gradient-to-br from-yellow-900 to-orange-900",
+                    !isWinner && rank === 1 && "bg-gradient-to-br from-yellow-800 to-yellow-900",
+                    !isWinner && rank === 2 && "bg-gradient-to-br from-gray-700 to-gray-800",
+                    !isWinner && rank === 3 && "bg-gradient-to-br from-orange-800 to-orange-900",
+                    !isWinner && (rank === null || rank > 3) && "bg-gradient-to-br from-blue-800 to-purple-800",
                     isCurrentPlayer && "ring-2 ring-blue-400",
                   )}
                 >
                   {isWinner && <div className="absolute top-2 right-2 text-2xl animate-bounce">👑</div>}
                   {isCurrentPlayer && (
-                    <div className="absolute top-2 left-2 text-sm bg-blue-500 text-white px-2 py-1 rounded">You</div>
+                    <div className="absolute top-2 left-2 text-sm bg-blue-600 text-white px-2 py-1 rounded">You</div>
                   )}
 
                   <CardHeader className="pb-2">
                     <div className="flex items-center justify-between">
-                      <CardTitle className="text-lg font-bold flex items-center gap-2">
+                      <CardTitle className="text-lg font-bold flex items-center gap-2 text-gray-100">
                         {rank && <span className="text-xl">{getRankEmoji(rank)}</span>}
                         {player.name}
-                        {isWinner && <Crown className="w-5 h-5 text-yellow-600" />}
+                        {isWinner && <Crown className="w-5 h-5 text-yellow-400" />}
                       </CardTitle>
                       {isHost && room.state === "waiting" && !isCurrentPlayer && (
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => removePlayer(player.id)}
-                          className="text-red-500 hover:text-red-700"
+                          className="text-red-400 hover:text-red-300"
                           disabled={isLoading}
                         >
                           ✕
@@ -464,9 +467,10 @@ export default function GameRoom() {
                             }
                           }}
                           disabled={isLoading}
+                          className="bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-400"
                         />
                         {player.guess !== null && (
-                          <Badge variant="secondary" className="w-full justify-center">
+                          <Badge variant="secondary" className="w-full justify-center bg-gray-700 text-gray-200">
                             Guess Submitted: {player.guess}
                           </Badge>
                         )}
@@ -476,24 +480,24 @@ export default function GameRoom() {
                     {room.state === "guessing" && !isCurrentPlayer && (
                       <div className="text-center">
                         {player.guess !== null ? (
-                          <Badge variant="secondary">Guess Submitted ✓</Badge>
+                          <Badge variant="secondary" className="bg-gray-700 text-gray-200">Guess Submitted ✓</Badge>
                         ) : (
-                          <Badge variant="outline">Waiting for guess...</Badge>
+                          <Badge variant="outline" className="bg-gray-700 border-gray-600 text-gray-300">Waiting for guess...</Badge>
                         )}
                       </div>
                     )}
 
                     {room.state === "finished" && (
                       <div className="text-center space-y-2">
-                        <div className="text-2xl font-bold">{player.guess !== null ? player.guess : "No Guess"}</div>
+                        <div className="text-2xl font-bold text-gray-100">{player.guess !== null ? player.guess : "No Guess"}</div>
                         {player.difference !== null && (
-                          <div className="text-sm text-gray-600">Difference: {player.difference}</div>
+                          <div className="text-sm text-gray-400">Difference: {player.difference}</div>
                         )}
-                        {rank && <Badge variant="secondary">Rank #{rank}</Badge>}
+                        {rank && <Badge variant="secondary" className="bg-gray-700 text-gray-200">Rank #{rank}</Badge>}
                       </div>
                     )}
 
-                    {room.state === "waiting" && <div className="text-center text-gray-500">Waiting to start...</div>}
+                    {room.state === "waiting" && <div className="text-center text-gray-400">Waiting to start...</div>}
                   </CardContent>
                 </Card>
               )
@@ -502,16 +506,16 @@ export default function GameRoom() {
         )}
 
         {/* Instructions */}
-        <Card className="mt-8 bg-white/50 backdrop-blur-sm">
+        <Card className="mt-8 bg-gray-800/50 backdrop-blur-sm border-gray-700">
           <CardContent className="p-6">
-            <h3 className="font-semibold mb-2">How to Play:</h3>
-            <div className="text-sm text-gray-600 space-y-1">
-              <p>1. Share the room link with other players</p>
-              <p>2. Players join by entering their names</p>
-              <p>3. Host starts the guessing phase</p>
-              <p>4. Each player submits their number guess</p>
-              <p>5. Host reveals the correct answer</p>
-              <p>6. The player with the closest guess wins! 🏆</p>
+            <h3 className="font-semibold mb-2 text-gray-100">How to Play:</h3>
+            <div className="text-sm text-gray-400 space-y-1">
+              <p>1. Share the meeting link with other participants</p>
+              <p>2. Participants join by entering their names</p>
+              <p>3. Host starts the betting phase</p>
+              <p>4. Each participant submits their phrase count bet</p>
+              <p>5. Host reveals the actual count</p>
+              <p>6. The participant with the closest bet wins! 🏆</p>
             </div>
           </CardContent>
         </Card>
