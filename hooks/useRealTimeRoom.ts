@@ -32,7 +32,7 @@ export function useRealTimeRoom(roomId: string) {
 
   useEffect(() => {
     // Initialize Socket.IO connection
-    const socket = io(process.env.NODE_ENV === 'production' ? '' : process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:4000', {
+    const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:4000', {
       transports: ['websocket', 'polling']
     })
 
