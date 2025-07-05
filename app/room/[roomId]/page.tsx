@@ -47,6 +47,8 @@ export default function GameRoom() {
   const [isLoading, setIsLoading] = useState(false)
   const [isResetDialogOpen, setIsResetDialogOpen] = useState(false)
   const [isCloseDialogOpen, setIsCloseDialogOpen] = useState(false)
+  const [customPhrase, setCustomPhrase] = useState("")
+  const [isPhraseDialogOpen, setIsPhraseDialogOpen] = useState(false)
 
   const {
     room,
@@ -62,6 +64,7 @@ export default function GameRoom() {
     resetGame,
     updateTitle,
     closeRoom,
+    updatePhrase,
   } = useRealTimeRoom(roomId)
 
   // Check if current player has already joined
@@ -150,6 +153,44 @@ export default function GameRoom() {
       setTimeout(() => setShowCopySuccess(false), 2000)
     })
   }
+
+  const handleUpdatePhrase = async (phrase: string) => {
+    setIsLoading(true)
+    const success = await updatePhrase(phrase)
+    if (success) {
+      setCustomPhrase("")
+      setIsPhraseDialogOpen(false)
+      toast.success("Phrase updated successfully!")
+    } else {
+      toast.error("Failed to update phrase. Please try again.")
+    }
+    setIsLoading(false)
+  }
+
+  const handleCustomPhrase = async () => {
+    if (customPhrase.trim()) {
+      await handleUpdatePhrase(customPhrase.trim())
+    }
+  }
+
+  const predefinedPhrases = [
+    "Synergy",
+    "Circle Back", 
+    "Low Hanging Fruit",
+    "Think Outside the Box",
+    "Touch Base",
+    "Move the Needle",
+    "Deep Dive",
+    "Bandwidth",
+    "Leverage",
+    "Pivot",
+    "Game Changer",
+    "Best Practice",
+    "Win-Win",
+    "Scalable",
+    "Disruptive",
+    "Ideate"
+  ]
 
   if (!room) {
     return (
@@ -303,6 +344,99 @@ export default function GameRoom() {
             )}
           </div>
         </div>
+
+        {/* Current Phrase Display */}
+        <Card className="mb-8 bg-gray-800 border-gray-700">
+          <CardContent className="p-6">
+            <div className="text-center">
+              <h2 className="text-2xl font-bold text-gray-100 mb-4 flex items-center justify-center gap-2">
+                <Target className="w-6 h-6 text-purple-400" />
+                Target Phrase
+              </h2>
+              {room.phrase ? (
+                <div className="space-y-4">
+                  <div className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400 mb-2">
+                    &quot;{room.phrase}&quot;
+                  </div>
+                  <p className="text-gray-400">
+                    Count how many times this phrase is said during the meeting!
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="text-2xl text-gray-400 mb-2">
+                    No phrase selected yet
+                  </div>
+                  <p className="text-gray-500">
+                    {isHost ? "Choose a phrase below to start tracking" : "Waiting for host to select a phrase"}
+                  </p>
+                </div>
+              )}
+              
+              {isHost && room.state === "waiting" && (
+                <div className="mt-6">
+                  <Dialog open={isPhraseDialogOpen} onOpenChange={setIsPhraseDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button 
+                        className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                        disabled={isLoading}
+                      >
+                        <Target className="w-4 h-4 mr-2" />
+                        {room.phrase ? "Change Phrase" : "Select Phrase"}
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="bg-gray-800 border-gray-700 max-w-2xl">
+                      <DialogHeader>
+                        <DialogTitle className="text-gray-100">Choose Target Phrase</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-6">
+                        {/* Predefined Phrases */}
+                        <div>
+                          <h3 className="text-lg font-semibold text-gray-100 mb-3">Popular Toxic Phrases</h3>
+                          <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                            {predefinedPhrases.map((phrase) => (
+                              <Button
+                                key={phrase}
+                                variant="outline"
+                                onClick={() => handleUpdatePhrase(phrase)}
+                                disabled={isLoading}
+                                className="bg-gray-700 border-gray-600 text-gray-200 hover:bg-gray-600 text-sm"
+                              >
+                                {phrase}
+                              </Button>
+                            ))}
+                          </div>
+                        </div>
+                        
+                        {/* Custom Phrase */}
+                        <div>
+                          <h3 className="text-lg font-semibold text-gray-100 mb-3">Custom Phrase</h3>
+                          <div className="flex gap-2">
+                            <Input
+                              placeholder="Enter your own phrase..."
+                              value={customPhrase}
+                              onChange={(e) => setCustomPhrase(e.target.value)}
+                              onKeyDown={(e) => e.key === "Enter" && handleCustomPhrase()}
+                              disabled={isLoading}
+                              className="bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-400"
+                            />
+                            <Button
+                              onClick={handleCustomPhrase}
+                              disabled={!customPhrase.trim() || isLoading}
+                              className="bg-green-600 hover:bg-green-700"
+                            >
+                              {isLoading ? <RefreshCw className="w-4 h-4 animate-spin" /> : "Set"}
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Game Controls */}
         <div className="flex flex-wrap justify-center gap-4 mb-8">

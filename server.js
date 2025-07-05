@@ -44,6 +44,7 @@ app.prepare().then(() => {
         gameRooms.set(roomId, {
           id: roomId,
           title: "Toxic Coworker Phrase Counter",
+          phrase: null,
           state: "waiting",
           players: [],
           correctAnswer: null,
@@ -167,6 +168,16 @@ app.prepare().then(() => {
       if (!room || room.host !== hostId) return
 
       room.title = title
+      room.lastUpdated = Date.now()
+
+      io.to(roomId).emit('gameUpdate', { room })
+    })
+
+    socket.on('updatePhrase', ({ roomId, hostId, phrase }) => {
+      const room = gameRooms.get(roomId)
+      if (!room || room.host !== hostId) return
+
+      room.phrase = phrase
       room.lastUpdated = Date.now()
 
       io.to(roomId).emit('gameUpdate', { room })

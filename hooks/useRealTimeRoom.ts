@@ -14,6 +14,7 @@ interface Player {
 interface GameRoom {
   id: string
   title: string
+  phrase: string | null
   state: "waiting" | "guessing" | "finished"
   players: Player[]
   correctAnswer: number | null
@@ -182,6 +183,20 @@ export function useRealTimeRoom(roomId: string) {
     return true
   }, [roomId, playerId])
 
+  const updatePhrase = useCallback(
+    async (phrase: string) => {
+      if (!socketRef.current) return false
+
+      socketRef.current.emit('updatePhrase', {
+        roomId,
+        hostId: playerId,
+        phrase
+      })
+      return true
+    },
+    [roomId, playerId]
+  )
+
   return {
     room,
     isHost,
@@ -196,5 +211,6 @@ export function useRealTimeRoom(roomId: string) {
     resetGame,
     updateTitle,
     closeRoom,
+    updatePhrase,
   }
 }
