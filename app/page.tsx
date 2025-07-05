@@ -27,8 +27,7 @@ export default function NumberGuessingGame() {
   const [gameState, setGameState] = useState<GameState>("waiting")
   const [correctAnswer, setCorrectAnswer] = useState<number | null>(null)
   const [tempAnswer, setTempAnswer] = useState("")
-  const [gameTitle, setGameTitle] = useState("Toxic Coworker Phrase Counter")
-  const [tempTitle, setTempTitle] = useState("")
+  const gameTitle = "Toxic Coworker Phrase Counter"
   const [winner, setWinner] = useState<Player | null>(null)
   const [roomId, setRoomId] = useState("")
   const router = useRouter()
@@ -54,12 +53,10 @@ export default function NumberGuessingGame() {
     const savedPlayers = localStorage.getItem("guessingGamePlayers")
     const savedGameState = localStorage.getItem("guessingGameState")
     const savedAnswer = localStorage.getItem("guessingGameAnswer")
-    const savedTitle = localStorage.getItem("guessingGameTitle")
 
     if (savedPlayers) setPlayers(JSON.parse(savedPlayers))
     if (savedGameState) setGameState(savedGameState as GameState)
     if (savedAnswer) setCorrectAnswer(Number(savedAnswer))
-    if (savedTitle) setGameTitle(savedTitle)
   }, [])
 
   // Save to localStorage
@@ -77,9 +74,7 @@ export default function NumberGuessingGame() {
     }
   }, [correctAnswer])
 
-  useEffect(() => {
-    localStorage.setItem("guessingGameTitle", gameTitle)
-  }, [gameTitle])
+
 
   const joinGame = () => {
     if (newPlayerName.trim() && gameState === "waiting") {
@@ -151,12 +146,7 @@ export default function NumberGuessingGame() {
     }
   }
 
-  const updateTitle = () => {
-    if (tempTitle.trim()) {
-      setGameTitle(tempTitle.trim())
-      setTempTitle("")
-    }
-  }
+
 
   const sortedPlayers = [...players].sort((a, b) => {
     if (a.difference === null && b.difference === null) return 0
@@ -219,32 +209,6 @@ export default function NumberGuessingGame() {
             <h1 className="text-3xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">
               {gameTitle}
             </h1>
-            {gameState === "waiting" && (
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button variant="ghost" size="sm" className="text-gray-400 hover:text-gray-300">
-                    ✏️
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="bg-gray-800 border-gray-700">
-                  <DialogHeader>
-                    <DialogTitle className="text-gray-100">Edit Meeting Title</DialogTitle>
-                  </DialogHeader>
-                  <div className="space-y-4">
-                    <Input
-                      placeholder="Enter new meeting title"
-                      value={tempTitle}
-                      onChange={(e) => setTempTitle(e.target.value)}
-                      onKeyDown={(e) => e.key === "Enter" && updateTitle()}
-                      className="bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-400"
-                    />
-                    <Button onClick={updateTitle} className="w-full bg-purple-600 hover:bg-purple-700">
-                      Update Title
-                    </Button>
-                  </div>
-                </DialogContent>
-              </Dialog>
-            )}
           </div>
 
           <Badge className={cn("text-lg px-4 py-2 mb-4", getStateColor())}>
@@ -480,7 +444,7 @@ export default function NumberGuessingGame() {
       </div>
 
       {/* Room Controls */}
-      <div className="max-w-md w-full mt-8">
+      <div className="w-full mt-8">
         <div className="text-center mb-8">
           <h1 className="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400 mb-4">
             Meeting Controls
@@ -488,59 +452,61 @@ export default function NumberGuessingGame() {
           <p className="text-lg text-gray-400">Create or join a toxic phrase tracking session!</p>
         </div>
 
-        <div className="space-y-6">
-          {/* Create New Room */}
-          <Card className="bg-gray-800 border-gray-700">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-gray-100">
-                <Plus className="w-5 h-5" />
-                Create New Meeting
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-400 mb-4">Start a new meeting room and invite others to join</p>
-              <Button
-                onClick={createRoom}
-                className="w-full bg-gradient-to-r from-emerald-600 to-blue-600 hover:from-emerald-700 hover:to-blue-700"
-              >
-                Create Meeting
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            </CardContent>
-          </Card>
-
-          {/* Join Existing Room */}
-          <Card className="bg-gray-800 border-gray-700">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-gray-100">
-                <Users className="w-5 h-5" />
-                Join Existing Meeting
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-gray-400">Enter a meeting ID to join an existing session</p>
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Enter meeting ID"
-                  value={roomId}
-                  onChange={(e) => setRoomId(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && joinRoom()}
-                  className="bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-400"
-                />
-                <Button variant="outline" onClick={generateRandomRoomId} className="shrink-0 bg-gray-700 border-gray-600 text-gray-300 hover:bg-gray-600">
-                  🎲
+        <div className="max-w-2xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Create New Room */}
+            <Card className="bg-gray-800 border-gray-700">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-gray-100">
+                  <Plus className="w-5 h-5" />
+                  Create New Meeting
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-400 mb-4">Start a new meeting room and invite others to join</p>
+                <Button
+                  onClick={createRoom}
+                  className="w-full bg-gradient-to-r from-emerald-600 to-blue-600 hover:from-emerald-700 hover:to-blue-700"
+                >
+                  Create Meeting
+                  <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
-              </div>
-              <Button
-                onClick={joinRoom}
-                disabled={!roomId.trim()}
-                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
-              >
-                Join Meeting
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+
+            {/* Join Existing Room */}
+            <Card className="bg-gray-800 border-gray-700">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-gray-100">
+                  <Users className="w-5 h-5" />
+                  Join Existing Meeting
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-gray-400">Enter a meeting ID to join an existing session</p>
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Enter meeting ID"
+                    value={roomId}
+                    onChange={(e) => setRoomId(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && joinRoom()}
+                    className="bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-400"
+                  />
+                  <Button variant="outline" onClick={generateRandomRoomId} className="shrink-0 bg-gray-700 border-gray-600 text-gray-300 hover:bg-gray-600">
+                    🎲
+                  </Button>
+                </div>
+                <Button
+                  onClick={joinRoom}
+                  disabled={!roomId.trim()}
+                  className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                >
+                  Join Meeting
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     </div>
